@@ -1,0 +1,93 @@
+<html>
+  <head>
+    <title>Cerulean delivery systems</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+    <script>
+        
+        var sys         = {}; // PROXY Function
+        var cerulean    = {}; // App singleton
+        sys.log         = function(msg){ console.log(msg) }
+        sys.getPath     = function(path) { return path; }
+        sys.debug       = false
+        
+        sys.resources = {};
+        sys.resources.list = {
+            "css":["reset", "interface"],
+            "js":[
+                "mapStyle","handlebars",
+                "cerulean.extensions", "cerulean.nav", "cerulean.map", "cerulean.coordinates", "cerulean.edges",
+                "cerulean.dom", "cerulean.tpl", "cerulean.viewstack", "cerulean.storage", "cerulean.centrals",
+                "cerulean.rotes", "dijkstras", "handleBarsHelpers"
+            ]
+        }
+
+        sys.resources.load = function(type, path){
+
+            var head = document.head || document.getElementsByTagName('head')[0];
+            
+            switch(type){
+                case "css":
+                    var style       = document.createElement('link');
+                    style.type      = 'text/css';
+                    style.rel       = 'stylesheet';
+                    style.href      = "css/" + path + ".css";
+                    style.onload    = sys.resources.loadNext;
+                    head.appendChild(style);
+                    sys.log("loading ccs at " + style.href);
+                    break;
+                case "js":
+                    var script      = document.createElement('script');
+                    script.type     = 'text/javascript';
+                    script.rel      = 'javascript';
+                    script.src      = "js/" + path + ".js";
+                    script.onload   = sys.resources.loadNext; 
+                    head.appendChild(script);
+                    sys.log("loading js at " + path);
+                    break;
+            }
+        }
+
+        sys.resources.loadNext = function(){
+
+            var next = sys.resources.waitList.shift();
+
+            if(next){
+                sys.log("loading " + (sys.resources.waitListSize-sys.resources.waitList.length)
+                    + " of " + sys.resources.waitListSize);
+                sys.resources.load(next.type, next.data);
+            }else{
+                sys.resources.callback();
+            }
+        }
+
+        sys.resources.loadAll = function(callback){
+            sys.resources.waitList = new Array();
+            sys.resources.callback = callback
+            var precedence = ["css", "js"];
+            precedence.forEach(function(type){
+                sys.resources.list[type].forEach(function(data){
+                    sys.resources.waitList.push({type:type, data:data});
+                });
+            });
+            sys.resources.waitListSize = sys.resources.waitList.length
+            sys.resources.loadNext();
+        }
+
+        sys.bootstrap = function(){
+            sys.resources.loadAll(function(){
+                cerulean.tpl.show("body", "home", null, function(){
+                    cerulean.map.bootstrap()
+                    cerulean.nav.setRootController("main-menu", cerulean.nav.map)
+                    cerulean.storage.deserialize()
+                });
+            });
+        }
+        
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVBdqZrrlivwdMFGWhXd_fjJ-8XFlkAHU"
+    onload="sys.bootstrap()"></script>
+  </head>
+  <body id="body"></body>
+</html>
