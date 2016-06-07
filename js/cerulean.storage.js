@@ -37,12 +37,12 @@ cerulean.storage.serialize = function(){
 
 	var outputCoordinates = "";
 	cerulean.coordinates.list.forEach(function(c){
-		outputCoordinates += coordinate2String(c) + "\n";
+		outputCoordinates += coordinate2String(c) + "&";
 	});
 
 	var outputCentrals = "";
 	cerulean.centrals.list.forEach(function(c){
-		outputCentrals += central2String(c) + "\n";
+		outputCentrals += central2String(c) + "&";
 	});
 
 	if (typeof(Storage) !== "undefined") {
@@ -61,7 +61,7 @@ cerulean.storage.deserialize = function(){
 		if(!rawCoordnates) return;
 
 		try{
-			var lines = rawCoordnates.split("\n")
+			var lines = rawCoordnates.split("&")
 			var coordinatesObjs = {};
 
 			lines.forEach(function(aline){
@@ -117,7 +117,7 @@ cerulean.storage.deserialize = function(){
 		try{
 			
 			var rawCentrals = localStorage.getItem("cerulean.centrals");
-			var lines = rawCentrals.split("\n")
+			var lines = rawCentrals.split("&")
 			
 			lines.forEach(function(aline){
 				var lineData = aline.split(";");

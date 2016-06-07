@@ -17,11 +17,19 @@ cerulean.rotes.selectCentral = function(name) {
 cerulean.rotes.paths = []
 cerulean.rotes.stats = ""
 
-cerulean.rotes.drawPack = function(latLong, color){
+cerulean.rotes.drawPack = function(latLong, color, legend){
 
 	var mark = new google.maps.Marker(
 		mapStyles.Package(latLong.lat(), latLong.lng(), color)
 	)
+
+	mark.infowindow = new google.maps.InfoWindow({
+    	content: legend
+  	});
+
+  	mark.addListener('click', function() {
+    	mark.infowindow.open(cerulean.map.view, mark);
+  	});
 
 	cerulean.rotes.paths.push(mark)
 }
@@ -38,6 +46,9 @@ cerulean.rotes.drawPath = function(latLongList, color){
 
 	lines.setMap(cerulean.map.view);
 	cerulean.rotes.paths.push(lines);
+
+	var path = lines.getPath(); 
+	return google.maps.geometry.spherical.computeLength(path.getArray())
 }
 
 cerulean.rotes.clear = function(){
@@ -245,7 +256,7 @@ cerulean.rotes.dijkstra = function(startCentral, addresses){
 		for (var i = addresses.length - 1; i >= 0; i--) {
 			var biker  = startCentral.bikers[i];
 			var address = addresses[i];
-			packForBiker[biker] = [address];
+			packForBiker[biker] = [address.address];
 		};
 	}else{
 
@@ -279,9 +290,11 @@ cerulean.rotes.dijkstra = function(startCentral, addresses){
 	}
 
 	var colorForBiker = {}
+	var notes = "Distancias percorridas:<br/>"
+	var seed = parseInt(Math.random()*100)
 	for (var i = 0; i < startCentral.bikers.length; i++) {
-		var colors = ["#6BC6E4", "#6B6CE4", "#6CECD1", "#6CEC7A", "#B0EC28"]
-		colorForBiker[startCentral.bikers[i]] = colors[i%5];
+		var colors = ["#6BC6E4", "#7FFF7F", "#9C56E4", "#E27E1A", "#E21A61"]
+		colorForBiker[startCentral.bikers[i]] = colors[(seed+i)%5];
 	};
 
 	var drawPathForBiker = function(bikerName, packs){
@@ -318,7 +331,8 @@ cerulean.rotes.dijkstra = function(startCentral, addresses){
 					if(fromObj) from = fromObj.getPosition();
 					else sys.log("not found: "+item)
 				}else if(itemTag != "central"){
-					cerulean.rotes.drawPack(from, colorForBiker[bikerName]);
+					cerulean.rotes.drawPack(from, colorForBiker[bikerName],
+						"<div class='info'><b>"+itemTag+"</b><br/>Entregador: "+bikerName+"</div>");
 				}
 
 				allCooridnates.push({lat:from.lat(), lng:from.lng() })
@@ -326,7 +340,8 @@ cerulean.rotes.dijkstra = function(startCentral, addresses){
 			}
 		};
 
-		cerulean.rotes.drawPath(allCooridnates, colorForBiker[bikerName]);
+		var distanceForBiker = cerulean.rotes.drawPath(allCooridnates, colorForBiker[bikerName]);
+		notes += bikerName + ": " + (distanceForBiker/1000).toFixed(2) + "km<br/>"
 	
 	}
 
@@ -334,5 +349,6 @@ cerulean.rotes.dijkstra = function(startCentral, addresses){
 		drawPathForBiker(bikerName, packForBiker[bikerName]);
 	})
 
+	cerulean.dom.byID("rotes.geocoding.stats", notes);
 	cerulean.nav.setUserInteractionEnabled(true);
 }
