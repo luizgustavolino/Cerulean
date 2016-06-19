@@ -8,6 +8,13 @@ cerulean.rid.next = function(){
 }
 
 cerulean.storage = {};
+
+cerulean.storage.lastQuery = function(){
+	var lastQuery = localStorage.getItem("cerulean.lastQuery");
+	if(!lastQuery) lastQuery = cerulean.rom.lastQuery
+	return lastQuery
+}
+
 cerulean.storage.serialize = function(){
 
 	var central2String = function(c){
@@ -58,7 +65,9 @@ cerulean.storage.deserialize = function(){
 	if (typeof(Storage) !== "undefined") {
 		
 		var rawCoordnates = localStorage.getItem("cerulean.coordinates");
-		if(!rawCoordnates) return;
+		if(!rawCoordnates) {
+			rawCoordnates = cerulean.rom.coordinates // Fist load
+		}
 
 		try{
 			var lines = rawCoordnates.split("&")
@@ -117,6 +126,11 @@ cerulean.storage.deserialize = function(){
 		try{
 			
 			var rawCentrals = localStorage.getItem("cerulean.centrals");
+
+			if(!rawCentrals) {
+				rawCentrals = cerulean.rom.centrals // Fist load
+			}
+
 			var lines = rawCentrals.split("&")
 			
 			lines.forEach(function(aline){

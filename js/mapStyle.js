@@ -51,7 +51,7 @@ mapStyles.standingVerticeIcon = {
     strokeColor: '#FFFFFF',
     strokeOpacity: 0.0,
     strokeWeight: 0.0,
-    scale: 9
+    scale: 4
 }
 
 mapStyles.startVerticeIcon = {
@@ -113,13 +113,13 @@ mapStyles.DirectedEdge = [
 mapStyles.Edge = {
     icons: mapStyles.DirectedEdge,
     strokeColor: '#732BAB',
-    strokeWeight: 3
+    strokeWeight: 2
 }
 
 mapStyles.ReversableEdge = {
     icons: [],
     strokeColor: '#2BAB73',
-    strokeWeight: 6
+    strokeWeight: 4
 }
 
 mapStyles.tempCentralMarker = {

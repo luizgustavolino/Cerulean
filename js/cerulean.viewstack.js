@@ -81,7 +81,7 @@ cerulean.nav.dataFor["rotas"] = function(){
 }
 
 cerulean.nav.onPush["rotas.buscar"] = function (){
-
+	cerulean.dom.byID("rotes.addresses", cerulean.storage.lastQuery())
 }
 
 cerulean.nav.onPop["rotas.buscar"] = function (){
